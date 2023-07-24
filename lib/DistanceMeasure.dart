@@ -2,28 +2,19 @@ import 'dart:async';
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_glocation/current_loc.dart';
 import 'package:flutter_application_glocation/locations.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-void main() => runApp(DistanceMeasure());
 
-class DistanceMeasure extends StatelessWidget {
+
+class DistanceMeasure extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Google Maps Demo',
-      home: MapSample(),
-    );
-  }
+  State<DistanceMeasure> createState() => DistanceMeasureState();
 }
 
-class MapSample extends StatefulWidget {
-  @override
-  State<MapSample> createState() => MapSampleState();
-}
-
-class MapSampleState extends State<MapSample> {
+class DistanceMeasureState extends State<DistanceMeasure> {
   Completer<GoogleMapController> _controller = Completer();
   TextEditingController _originController = TextEditingController();
   TextEditingController _destinationController = TextEditingController();
@@ -95,9 +86,20 @@ class MapSampleState extends State<MapSample> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return  Scaffold(
       appBar: AppBar(
-        title: Text('Distance Measure'),
+         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      leading:  IconButton(  onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CurrentLoc()));
+                    }, icon: Icon(Icons.arrow_back)),
+                    title: Text('Distance Measure'),
+      
+         
+            
+      
       ),
       body: Column(
         children: [
@@ -108,6 +110,7 @@ class MapSampleState extends State<MapSample> {
                   children: [
                     TextFormField(
                       controller: _originController,
+        cursorColor: Theme.of(context).colorScheme.inversePrimary,            
                       decoration: InputDecoration(hintText: ' Origin'),
                       onChanged: (value) {
                         print(value);
@@ -166,14 +169,12 @@ class MapSampleState extends State<MapSample> {
   }
 
   Future<void> _goToPlace(
-    // Map<String, dynamic> place,
     double lat,
     double lng,
     Map<String, dynamic> boundsNe,
     Map<String, dynamic> boundsSw,
   ) async {
-    // final double lat = place['geometry']['location']['lat'];
-    // final double lng = place['geometry']['location']['lng'];
+    
 
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(
