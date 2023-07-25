@@ -1,12 +1,11 @@
 import 'dart:async';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_glocation/current_loc.dart';
 import 'package:flutter_application_glocation/locations.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 
 
 class DistanceMeasure extends StatefulWidget {
@@ -23,20 +22,28 @@ class DistanceMeasureState extends State<DistanceMeasure> {
   Set<Polygon> _polygons = Set<Polygon>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polygonLatLngs = <LatLng>[];
-
+  late GoogleMapController mapController;
   int _polygonIdCounter = 1;
   int _polylineIdCounter = 1;
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+  Future<CameraPosition> _getCurrentLocation() async {
+  Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high);
+  LatLng currentLocation = LatLng(position.latitude, position.longitude);
+  _setMarker(currentLocation);
 
+  return CameraPosition(
+    target: currentLocation,
+    zoom: 14,
+  );
+}
   @override
   void initState() {
     super.initState();
-
-    _setMarker(LatLng(37.42796133580664, -122.085749655962));
+    
   }
 
   void _setMarker(LatLng point) {
@@ -81,6 +88,28 @@ class DistanceMeasureState extends State<DistanceMeasure> {
       ),
     );
   }
+    Future<Position> _determinePisition() async {
+    bool sereviceEnabled;
+    LocationPermission userPermission;
+
+    sereviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!sereviceEnabled) {
+      return Future.error("Location services are disabled !");
+    }
+    userPermission = await Geolocator.checkPermission();
+    if (userPermission == LocationPermission.denied) {
+      userPermission = await Geolocator.requestPermission();
+      if (userPermission == LocationPermission.denied) {
+        return Future.error("Location services are disabled !");
+      }
+    }
+    if (userPermission == LocationPermission.deniedForever) {
+      return Future.error("Location services are permantly denied !");
+    }
+    Position position = await Geolocator.getCurrentPosition();
+    return position;
+  }
 
 
 
@@ -88,7 +117,7 @@ class DistanceMeasureState extends State<DistanceMeasure> {
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(
-         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       leading:  IconButton(  onPressed: () {
                       Navigator.push(
                           context,
@@ -96,10 +125,7 @@ class DistanceMeasureState extends State<DistanceMeasure> {
                               builder: (context) => CurrentLoc()));
                     }, icon: Icon(Icons.arrow_back)),
                     title: Text('Distance Measure'),
-      
-         
-            
-      
+
       ),
       body: Column(
         children: [
@@ -111,14 +137,14 @@ class DistanceMeasureState extends State<DistanceMeasure> {
                     TextFormField(
                       controller: _originController,
         cursorColor: Theme.of(context).colorScheme.inversePrimary,            
-                      decoration: InputDecoration(hintText: ' Origin'),
+                      decoration: InputDecoration(hintText: 'Start Point'),
                       onChanged: (value) {
                         print(value);
                       },
                     ),
                     TextFormField(
                       controller: _destinationController,
-                      decoration: InputDecoration(hintText: ' Destination'),
+                      decoration: InputDecoration(hintText: 'End Point'),
                       onChanged: (value) {
                         print(value);
                       },
@@ -146,23 +172,34 @@ class DistanceMeasureState extends State<DistanceMeasure> {
             ],
           ),
           Expanded(
-            child: GoogleMap(
-              mapType: MapType.normal,
-              markers: _markers,
-              polygons: _polygons,
-              polylines: _polylines,
-              initialCameraPosition: _kGooglePlex,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              onTap: (point) {
-                setState(() {
-                  polygonLatLngs.add(point);
-                  _setPolygon();
-                });
-              },
-            ),
-          ),
+  child: FutureBuilder<CameraPosition>(
+    future: _getCurrentLocation(),
+    builder: (BuildContext context, AsyncSnapshot<CameraPosition> snapshot) {
+      if (snapshot.hasData) {
+        return GoogleMap(
+          mapType: MapType.normal,
+          markers: _markers,
+          polygons: _polygons,
+          polylines: _polylines,
+          initialCameraPosition: snapshot.data!,
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+          },
+          onTap: (point) {
+            setState(() {
+              polygonLatLngs.add(point);
+              _setPolygon();
+            });
+          },
+        );
+      } else {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+    },
+  ),
+),
         ],
       ),
     );
@@ -174,8 +211,7 @@ class DistanceMeasureState extends State<DistanceMeasure> {
     Map<String, dynamic> boundsNe,
     Map<String, dynamic> boundsSw,
   ) async {
-    
-
+  
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
