@@ -1,16 +1,13 @@
-# flutter_application_glocation
 
-A new Flutter project.
+## Glocation Mobile Appliction
 
-## Getting Started
+Description :The app able to get the user current location and provide searching palces bwtween two points according to the user search and provide tracking between these points.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+[Demo video of the appliction](https://drive.google.com/file/d/1x44OQURpz1LvRXbMyRMPgMBLCuLTv_-p/view?usp=sharing)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Here's some screenshots of the appliction:
+![Screenshot_٢٠٢٣٠٧٢٥_٠٢٠٩٣٠](https://github.com/WedyanFawaz/Geolocation/assets/105236306/289efbc9-f881-487c-829e-b4eaca1e5be6)
+![Screenshot_٢٠٢٣٠٧٢٥_٠٢٠٩٤٧](https://github.com/WedyanFawaz/Geolocation/assets/105236306/4d7ad299-6e95-47f6-8f62-844e429edab8)
+![Screenshot_٢٠٢٣٠٧٢٥_٠٢٠٩٥٩](https://github.com/WedyanFawaz/Geolocation/assets/105236306/d42e7f6f-a0da-406d-91b4-1ac96829c9f2)
+![Screenshot_٢٠٢٣٠٧٢٥_٠٢١٠٠٩](https://github.com/WedyanFawaz/Geolocation/assets/105236306/be9cbd88-ca9f-4d38-a011-4dd5d96cf74b)
